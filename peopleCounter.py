@@ -88,13 +88,9 @@ while True:
         for x in range(z):
             if min1[x] > 10:
                 print(BusService[x])
-                blynk.virtual_write(1, BusService[x])
-
                 blynk.notify("High Crowd! Please deploy additional bus"+BusService[x])
-            else:
-                blynk.virtual_write(1, " ")
 
-        blynk.notify("High CrowdS, no additional deployment of buses are required")
+        blynk.notify("High Crowd, no additional deployment of buses are required")
 
 
 
@@ -109,7 +105,7 @@ while True:
 
 
 
-    elif crowd > 20:
+    elif crowd > 15:
         status = "High crowd"
 
     print(status)
