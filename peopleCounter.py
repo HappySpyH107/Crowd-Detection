@@ -35,6 +35,9 @@ while True:
     crowd = label.count('person')
     print(crowd)
 
+    blynk.run()
+    blynk.virtual_write(1, " ")
+
     if crowd == 0:
         status = "Empty"
     elif crowd >= 1:
@@ -88,11 +91,15 @@ while True:
         for x in range(z):
             if min1[x] > 10:
                 print(BusService[x])
-                blynk.notify("High Crowd! Please deploy additional bus"+BusService[x])
+                blynk.notify("High Crowd! Please deploy additional bus  "+BusService[x])
+                blynk.virtual_write(1, BusService[x])
+
+
+
 
         blynk.notify("High Crowd, no additional deployment of buses are required")
 
-
+        blynk.run()
 
         with open("output_image.png", "rb") as file:
             url = "https://api.imgbb.com/1/upload"
@@ -101,9 +108,6 @@ while True:
                 "image": base64.b64encode(file.read()),
             }
             res = requests.post(url, payload)
-
-
-
 
     elif crowd > 15:
         status = "High crowd"
