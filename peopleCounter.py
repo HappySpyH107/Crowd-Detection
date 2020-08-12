@@ -40,7 +40,7 @@ while True:
     print(crowd)
 
     blynk.run()
-    blynk.virtual_write(1, " ")
+
 
     if crowd == 0:
         status = "Empty"
