@@ -12,6 +12,8 @@ from urllib.parse import urlparse
 import json
 import math
 
+x =0
+
 camera = PiCamera()
 
 BLYNK_AUTH = 'eW3cMsZ6qaHSANLaz28pS3sZ_Jo75ovo'
@@ -19,6 +21,8 @@ blynk = BlynkLib.Blynk(BLYNK_AUTH)
 
 
 while True:
+
+    blynk.run()
 
     now = datetime.datetime.now()
 
@@ -40,82 +44,93 @@ while True:
 
     if crowd == 0:
         status = "Empty"
+        blynk.virtual_write(1, " ")
+        x =0
     elif crowd >= 1:
         status = "Low crowd"
 
-        if __name__ == "__main__":
-            # Authentication parameters
-            headers = {'AccountKey': 'NXpFdS3XQnqaH4jIc2g6kQ==',
-                       'accept': 'application/json'}  # this is by default
+        if x == 0:
+            if __name__ == "__main__":
+                # Authentication parameters
+                headers = {'AccountKey': 'NXpFdS3XQnqaH4jIc2g6kQ==',
+                           'accept': 'application/json'}  # this is by default
 
-            # API parameters
-            uri = 'http://datamall2.mytransport.sg/'  # Resource URL
-            path = 'ltaodataservice/BusArrivalv2?BusStopCode=75279'
+                # API parameters
+                uri = 'http://datamall2.mytransport.sg/'  # Resource URL
+                path = 'ltaodataservice/BusArrivalv2?BusStopCode=75279'
 
-        # Build query string & specify type of API call
-        target = urlparse(uri + path)
-        method = 'GET'
-        body = ''
+            # Build query string & specify type of API call
+            target = urlparse(uri + path)
+            method = 'GET'
+            body = ''
 
-        # Get handle to http
-        h = http.Http()
+            # Get handle to http
+            h = http.Http()
 
-        # Obtain results
-        response, content = h.request(target.geturl(), method, body, headers)
+            # Obtain results
+            response, content = h.request(target.geturl(), method, body, headers)
 
-        # Parse JSON to print
-        jsonObj = json.loads(content)
+            # Parse JSON to print
+            jsonObj = json.loads(content)
 
-        z = len(jsonObj['Services'])
+            z = len(jsonObj['Services'])
 
-        BusService = ['', '', '', '', '']
-        firstBus = ['', '', '', '', '']
-        Bus1 = ['', '', '', '', '']
-        BusTiming1 = ['', '', '', '', '']
-        BusArr1 = ['', '', '', '', '']
-        min1 = ['', '', '', '', '']
+            BusService = ['', '', '', '', '']
+            firstBus = ['', '', '', '', '']
+            Bus1 = ['', '', '', '', '']
+            BusTiming1 = ['', '', '', '', '']
+            BusArr1 = ['', '', '', '', '']
+            min1 = ['', '', '', '', '']
 
-        for x in range(z):
-            BusService[x] = jsonObj['Services'][x]['ServiceNo']
-            firstBus[x] = jsonObj['Services'][x]['NextBus']['EstimatedArrival']
+            for x in range(z):
+                BusService[x] = jsonObj['Services'][x]['ServiceNo']
+                firstBus[x] = jsonObj['Services'][x]['NextBus']['EstimatedArrival']
 
-            Bus1[x] = (firstBus[x].replace("T", " ")).replace("+08:00", "")
-            BusTiming1[x] = datetime.datetime.strptime(Bus1[x], '%Y-%m-%d %H:%M:%S')
-            BusArr1[x] = ((BusTiming1[x] - now).total_seconds()) / 60
-            min1[x] = math.trunc(BusArr1[x])
+                Bus1[x] = (firstBus[x].replace("T", " ")).replace("+08:00", "")
+                BusTiming1[x] = datetime.datetime.strptime(Bus1[x], '%Y-%m-%d %H:%M:%S')
+                BusArr1[x] = ((BusTiming1[x] - now).total_seconds()) / 60
+                min1[x] = math.trunc(BusArr1[x])
 
-            print(BusService[x])
-            print(min1[x])
-            print("\n")
-
-        for x in range(z):
-            if min1[x] > 10:
                 print(BusService[x])
-                blynk.notify("High Crowd! Please deploy additional bus  "+BusService[x])
-                blynk.virtual_write(1, BusService[x])
+                print(min1[x])
+                print("\n")
+            blynk.virtual_write(1, " ")
+
+            for x in range(z):
+                if min1[x] > 10:
+                    print(BusService[x])
+                    blynk.notify("High Crowd! Please deploy additional bus  " + BusService[x])
+                    blynk.virtual_write(1, BusService[x])
+
+            blynk.notify("High Crowd, no additional deployment of buses are required")
+
+            blynk.run()
+            print("uploading photo")
+
+            with open("output_image.png", "rb") as file:
+                url = "https://api.imgbb.com/1/upload"
+                payload = {
+                    "key": "5c312507482cb88aa06da3a1a9ba7a4c",
+                    "image": base64.b64encode(file.read()),
+                }
+                res = requests.post(url, payload)
+            print("uploading done")
+
+            x = 1
+            blynk.run()
 
 
-
-
-        blynk.notify("High Crowd, no additional deployment of buses are required")
-
-        blynk.run()
-
-        with open("output_image.png", "rb") as file:
-            url = "https://api.imgbb.com/1/upload"
-            payload = {
-                "key": "5c312507482cb88aa06da3a1a9ba7a4c",
-                "image": base64.b64encode(file.read()),
-            }
-            res = requests.post(url, payload)
 
     elif crowd > 15:
         status = "High crowd"
+        blynk.virtual_write(1, " ")
+        x =0
 
     print(status)
 
     blynk.virtual_write(0, status)
     blynk.virtual_write(2, crowd)
     blynk.run()
+
 
 
