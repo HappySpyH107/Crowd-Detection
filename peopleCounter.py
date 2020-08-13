@@ -46,6 +46,7 @@ while True:
         status = "Empty"
         blynk.virtual_write(1, " ")
         x =0
+        blynk.virtual_write(3, 1, '', '', "value")
     elif crowd >= 1:
         status = "Low crowd"
 
@@ -70,6 +71,8 @@ while True:
             # Obtain results
             response, content = h.request(target.geturl(), method, body, headers)
 
+            blynk.run()
+
             # Parse JSON to print
             jsonObj = json.loads(content)
 
@@ -81,10 +84,14 @@ while True:
             BusTiming1 = ['', '', '', '', '']
             BusArr1 = ['', '', '', '', '']
             min1 = ['', '', '', '', '']
+            lat = ['', '', '', '', '']
+            long = ['', '', '', '', '']
 
             for x in range(z):
                 BusService[x] = jsonObj['Services'][x]['ServiceNo']
                 firstBus[x] = jsonObj['Services'][x]['NextBus']['EstimatedArrival']
+                lat[x] = jsonObj['Services'][x]['NextBus']['Latitude']
+                long[x] = jsonObj['Services'][x]['NextBus']['Longitude']
 
                 Bus1[x] = (firstBus[x].replace("T", " ")).replace("+08:00", "")
                 BusTiming1[x] = datetime.datetime.strptime(Bus1[x], '%Y-%m-%d %H:%M:%S')
@@ -94,6 +101,7 @@ while True:
                 print(BusService[x])
                 print(min1[x])
                 print("\n")
+                
             blynk.virtual_write(1, " ")
 
             for x in range(z):
@@ -101,11 +109,14 @@ while True:
                     print(BusService[x])
                     blynk.notify("High Crowd! Please deploy additional bus  " + BusService[x])
                     blynk.virtual_write(1, BusService[x])
+                    blynk.virtual_write(3, 1, lat[x], long[x], "value")
 
             blynk.notify("High Crowd, no additional deployment of buses are required")
 
             blynk.run()
+
             print("uploading photo")
+
 
             with open("output_image.png", "rb") as file:
                 url = "https://api.imgbb.com/1/upload"
@@ -116,6 +127,7 @@ while True:
                 res = requests.post(url, payload)
             print("uploading done")
 
+
             x = 1
             blynk.run()
 
@@ -125,12 +137,14 @@ while True:
         status = "High crowd"
         blynk.virtual_write(1, " ")
         x =0
+        blynk.virtual_write(3, 1, '', '', "value")
 
     print(status)
 
     blynk.virtual_write(0, status)
     blynk.virtual_write(2, crowd)
     blynk.run()
+
 
 
 
